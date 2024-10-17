@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "crewai_notebooklm_clone"
+version = "0.1.0"
+description = "crewai-notebooklm-clone using crewAI"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<=3.13"
+crewai = { extras = ["tools"], version = ">=0.70.1,<1.0.0" }
+
+
+[tool.poetry.scripts]
+crewai_notebooklm_clone = "crewai_notebooklm_clone.main:run"
+run_crew = "crewai_notebooklm_clone.main:run"
+train = "crewai_notebooklm_clone.main:train"
+replay = "crewai_notebooklm_clone.main:replay"
+test = "crewai_notebooklm_clone.main:test"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
