@@ -1,16 +1,15 @@
-[project]
+[tool.poetry]
 name = "crewai_notebooklm_clone"
 version = "0.1.0"
 description = "crewai-notebooklm-clone using crewAI"
-authors = [
-    { name = "Your Name", email = "you@example.com" },
-]
-requires-python = ">=3.10,<=3.13"
-dependencies = [
-    "crewai[tools]>=0.70.1,<1.0.0",
-]
+authors = ["Your Name <you@example.com>"]
 
-[project.scripts]
+[tool.poetry.dependencies]
+python = ">=3.10,<=3.13"
+crewai = { extras = ["tools"], version = ">=0.70.1,<1.0.0" }
+
+
+[tool.poetry.scripts]
 crewai_notebooklm_clone = "crewai_notebooklm_clone.main:run"
 run_crew = "crewai_notebooklm_clone.main:run"
 train = "crewai_notebooklm_clone.main:train"
@@ -18,7 +17,5 @@ replay = "crewai_notebooklm_clone.main:replay"
 test = "crewai_notebooklm_clone.main:test"
 
 [build-system]
-requires = [
-    "hatchling",
-]
-build-backend = "hatchling.build"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,42 +1,63 @@
-from crewai import Agent, Crew, Process, Task
+import os
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
+from crewai_notebooklm_clone.tools.custom_tool import CerebrasTool, ElevenLabsTool, MergeAudioTool
 
-# Uncomment the following line to use an example of a custom tool
-# from crewai_notebooklm_clone.tools.custom_tool import MyCustomTool
-
-# Check our tools documentations for more information on how to use them
-# from crewai_tools import SerperDevTool
+llm = LLM(
+    model="cerebras/llama3.1-70b",
+    base_url="https://api.cerebras.ai/v1",
+    api_key=os.getenv("CEREBRAS_API_KEY"),
+	temperature=0
+)
 
 @CrewBase
 class CrewaiNotebooklmCloneCrew():
 	"""CrewaiNotebooklmClone crew"""
 
 	@agent
-	def researcher(self) -> Agent:
+	def summarizer_and_conversational_script_writer(self) -> Agent:
 		return Agent(
-			config=self.agents_config['researcher'],
-			# tools=[MyCustomTool()], # Example of custom tool, loaded on the beginning of file
-			verbose=True
+			config=self.agents_config['summarizer_and_conversational_script_writer'],
+			verbose=True,
+			tools=[CerebrasTool()],
+			llm=llm
 		)
 
 	@agent
-	def reporting_analyst(self) -> Agent:
+	def audio_producer(self) -> Agent:
 		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
+			config=self.agents_config['audio_producer'],
+			verbose=True,
+			tools=[ElevenLabsTool()],
+			llm=llm
+		)
+
+	@agent
+	def podcast_audio_producer(self) -> Agent:
+		return Agent(
+			config=self.agents_config['podcast_audio_producer'],
+			verbose=True,
+			tools=[MergeAudioTool()],
+			llm=llm
 		)
 
 	@task
-	def research_task(self) -> Task:
+	def summarizer_and_conversational_script_writer_task(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
+			config=self.tasks_config['summarizer_and_conversational_script_writer_task'],
+			output_file='output/script.json'	
 		)
 
 	@task
-	def reporting_task(self) -> Task:
+	def audio_producer_task(self) -> Task:
 		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
+			config=self.tasks_config['audio_producer_task'],
+		)
+
+	@task
+	def podcast_audio_producer_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['podcast_audio_producer_task'],
 		)
 
 	@crew

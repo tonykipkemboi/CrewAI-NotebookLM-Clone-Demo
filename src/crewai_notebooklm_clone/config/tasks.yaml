@@ -1,17 +1,20 @@
-research_task:
+summarizer_and_conversational_script_writer_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is 2024.
+    Summarize the content into key points suitable for conversational podcast dialogue.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A conversational script between two podcast hosts (Giggles and Chuckles) in JSON format.
+  agent: summarizer_and_conversational_script_writer
 
-reporting_task:
+audio_producer_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Generate audio using the script.
   expected_output: >
-    A fully fledge reports with the mains topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    Audio files in MP3 format for each of the two speakers (Chuckles and Giggles).
+  agent: audio_producer
+
+podcast_audio_producer_task:
+  description: >
+    Merge the audio files into a single podcast file.
+  expected_output: >
+    An audio file in MP3 format.
+  agent: podcast_audio_producer

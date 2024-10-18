@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 from crewai_notebooklm_clone.crew import CrewaiNotebooklmCloneCrew
 
@@ -11,44 +12,49 @@ def run():
     """
     Run the crew.
     """
-    inputs = {
-        'topic': 'AI LLMs'
-    }
-    CrewaiNotebooklmCloneCrew().crew().kickoff(inputs=inputs)
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+    else:
+        file_path = input("Enter the path to the file containing the content: ")
+
+    if not os.path.exists(file_path):
+        print(f"File {file_path} does not exist.")
+        return
+
+    try:
+        with open(file_path, 'r') as file:
+            user_input = file.read()
+
+        inputs = {
+            'content': user_input,
+        }
+        CrewaiNotebooklmCloneCrew().crew().kickoff(inputs=inputs)
+    except Exception as e:
+        print(f"Error reading the file: {e}")
 
 
 def train():
     """
     Train the crew for a given number of iterations.
     """
-    inputs = {
-        "topic": "AI LLMs"
-    }
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+    else:
+        file_path = input("Enter the path to the file containing the content: ")
+
+    if not os.path.exists(file_path):
+        print(f"File {file_path} does not exist.")
+        return
+
     try:
-        CrewaiNotebooklmCloneCrew().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+        with open(file_path, 'r') as file:
+            user_input = file.read()
+
+        inputs = {
+            'content': user_input,
+        }
+        CrewaiNotebooklmCloneCrew().crew().train(n_iterations=2, filename=sys.argv[2], inputs=inputs)
 
     except Exception as e:
         raise Exception(f"An error occurred while training the crew: {e}")
 
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    try:
-        CrewaiNotebooklmCloneCrew().crew().replay(task_id=sys.argv[1])
-
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
-
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    inputs = {
-        "topic": "AI LLMs"
-    }
-    try:
-        CrewaiNotebooklmCloneCrew().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
-
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
