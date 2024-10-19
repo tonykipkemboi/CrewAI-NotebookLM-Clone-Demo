@@ -1,5 +1,6 @@
 import os
 import requests
+from datetime import datetime
 from typing import ClassVar
 from pydub import AudioSegment
 from crewai_tools import BaseTool
@@ -18,22 +19,23 @@ class CerebrasTool(BaseTool):
         system_prompt = (
             "You are an expert podcast host.\n"
             "- Your task is to create a lively, engaging conversation between two speakers based on the provided article or text.\n"
-            "- The dialogue should be at least 30,000 characters long, packed with emotional expression.\n"
+            "- The dialogue should be at least 25,000 characters long, packed with emotional expression.\n"
             "- The speakers are Chuckles (the technical host) and Giggles (the co-host who asks insightful and curious questions).\n"
+            "- The speakers should alternate turns in the conversation one being technical and the other one asking questions.\n"
             "- The podcast title is 'Brainy Banter with Chuckles and Giggles.'\n"
             "- Keep sentences short and suitable for smooth speech synthesis.\n"
             "- Inject energy and enthusiasm into the conversation to keep it engaging.\n"
             "- Avoid mentioning last names, and refrain from phrases like, 'Thanks for having me, Giggles!'\n"
-            "- Use natural speech patterns, including filler words like 'uh' or repeated words to make the dialogue feel spontaneous and realistic.\n"
+            "- Use natural speech patterns, including filler words like 'uh', 'umm', or repeated words to make the dialogue feel spontaneous and realistic.\n"
             "- The output MUST be in the following JSON format:\n"
             "[\n"
-            "  {\"speaker\": \"Giggles\", \"text\": \"Wow, Giggles! Today we're diving into the fascinating world of black holes!\"},\n"
-            "  {\"speaker\": \"Chuckles\", \"text\": \"I know, Chuckles! I've always been curious about these cosmic phenomena. Let's start with the basics.\"}\n"
+            "  {\"speaker\": \"Giggles\", \"text\": \"Wow, Giggles! Today we're diving into the fascinating world of black holes! I'm excited.\"},\n"
+            "  {\"speaker\": \"Chuckles\", \"text\": \"I know, Chuckles! I've always been curious about these cosmic phenomena. Let's start with the basics.\"},\n"
             "]\n"
             "- Do not include any notes or descriptions outside of this JSON structure."
+            "- Make sure there is an intro and outro conversation to the podcast.\n"
         )
-   
-
+    
         # Generate conversation using Cerebras API
         response = client.chat.completions.create(
             messages=[
@@ -77,8 +79,9 @@ class ElevenLabsTool(BaseTool):
             "xi-api-key": elevenlabs_api_key
         }
 
-        # Create the 'audio-files' directory if it doesn't exist
-        os.makedirs('audio-files', exist_ok=True)
+        # Create the 'output/audio-files' directory if it doesn't exist
+        output_dir = 'output/audio-files'
+        os.makedirs(output_dir, exist_ok=True)
 
         audio_files = []
         for index, part in enumerate(conversation_script):
@@ -90,16 +93,16 @@ class ElevenLabsTool(BaseTool):
                 url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
                 data = {
                     "text": text,
-                    "model_id": "eleven_turbo_v2_5",
+                    "model_id": "eleven_multilingual_v2",
                     "voice_settings": {
-                        "stability": 0.5,
-                        "similarity_boost": 0.75
+                        "stability": 1,
+                        "similarity_boost": 1,
                     }
                 }
 
                 response = requests.post(url, json=data, headers=headers)
                 if response.status_code == 200:
-                    filename = f"audio-files/{index}_{speaker}.mp3"
+                    filename = f"{output_dir}/{index}_{speaker}.mp3"
                     with open(filename, "wb") as out:
                         for chunk in response.iter_content(chunk_size=1024):
                             if chunk:
@@ -115,7 +118,11 @@ class MergeAudioTool(BaseTool):
     name: str = "MergeAudioTool"
     description: str = "Merges individual audio clips into a final podcast file."
 
-    def _run(self, audio_folder: str = "audio-files", output_file: str = "podcast2.mp3") -> str:
+    def _run(self, audio_folder: str = "audio-files", output_dir: str = "output") -> str:
+        # Generate a unique filename using timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_file = f"{output_dir}/podcast_{timestamp}.mp3"
+
         combined = AudioSegment.empty()
         audio_files = sorted(
             [f for f in os.listdir(audio_folder) if f.endswith(".mp3")],
@@ -127,5 +134,7 @@ class MergeAudioTool(BaseTool):
             audio = AudioSegment.from_file(audio_path)
             combined += audio
 
+        # Export the combined audio to a unique file
         combined.export(output_file, format="mp3")
+        print(f"Merged podcast saved as {output_file}")
         return output_file
