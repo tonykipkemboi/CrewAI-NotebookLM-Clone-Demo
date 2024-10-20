@@ -21,7 +21,7 @@ class CerebrasTool(BaseTool):
             "- Your task is to create a lively, engaging conversation between two speakers based on the provided article or text.\n"
             "- The dialogue should be at least 25,000 characters long, packed with emotional expression.\n"
             "- The speakers are Chuckles (the technical host) and Giggles (the co-host who asks insightful and curious questions).\n"
-            "- The speakers should alternate turns in the conversation one being technical and the other one asking questions.\n"
+            "- The speakers should alternate turns in the conversation one being technical.\n"
             "- The podcast title is 'Brainy Banter with Chuckles and Giggles.'\n"
             "- Keep sentences short and suitable for smooth speech synthesis.\n"
             "- Inject energy and enthusiasm into the conversation to keep it engaging.\n"
